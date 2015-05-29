@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Conway's Life</title>
+    <script type="text/javascript" src="jquery-1.8.min.js"></script>
+  </head>
+
+  <body>
+    <div>
+
+      <canvas id="canvas" width="2000px" height="2000px">
+      </canvas>
+
+    </div>
+  </body>
+<script type="text/javascript">
+var initPoints = [{x:1,y:2},{x:2,y:3},{x:3,y:1},{x:3,y:2},{x:3,y:3}];
+var allNeighbors = [];
+$().ready(function(){
+    setInterval(function() {
+      console.log(initPoints);
+        var points =  NextGeneration(initPoints);
+        // console.log(points);
+        clean();
+        for(var i=0;i<points.length;i++){
+          draw(points[i]);
+        }
+        initPoints = points;
+        allNeighbors=[];
+    }, 100);
+  
+});
+
+function NextGeneration(points){
+
+  var nextGeneratoin =[]; 
+  for(var i=0;i<points.length;i++){
+    if (StillAlive(points[i])){
+      // console.log(points[i]);
+      nextGeneratoin.push(points[i])
+    }
+  }
+  // console.log(nextGeneratoin);
+  var dtolive =DeadToAlive(points);
+  if (dtolive.length){
+    for(var i=0;i<dtolive.length;i++){
+    nextGeneratoin.push(dtolive[i]);
+    }
+  }
+  
+return nextGeneratoin;
+
+}
+
+function GetNeigbors(point){
+  return [{x:point.x-1, y:point.y-1,count:1},{x:point.x-1, y:point.y,count:1},{x:point.x-1, y:point.y+1,count:1},
+          {x:point.x, y:point.y-1,count:1},{x:point.x, y:point.y+1,count:1},
+          {x:point.x+1, y:point.y-1,count:1},{x:point.x+1, y:point.y,count:1},{x:point.x+1, y:point.y+1,count:1}];
+
+}
+
+function StillAlive(point){
+  var neighors = GetNeigbors(point);
+  // console.log(neighors);
+  var aliveneighorscount = 0;
+  for(var i=0;i<neighors.length;i++){
+    allNeighbors.push(neighors[i]);
+    if (IsAlive(neighors[i])){
+      aliveneighorscount ++
+    }
+  }
+  
+  if (aliveneighorscount == 2 || aliveneighorscount ==3){
+    return true;
+  }
+
+  return false;
+}
+
+function IsAlive(point){
+  for(var i=0;i<initPoints.length;i++){
+    if (point.x == initPoints[i].x && point.y == initPoints[i].y){
+      return true;
+    }
+  }
+  return false;
+
+}
+
+function DeadToAlive(){
+  var mergedAllNeighbors = [];
+   
+  for(var i=0;i< allNeighbors.length ;i++){
+    if(IsAlive(allNeighbors[i])){
+      continue;
+    }
+    var find = false;
+    for(var j=0;j<mergedAllNeighbors.length;j++){
+      if (mergedAllNeighbors[j].x == allNeighbors[i].x && mergedAllNeighbors[j].y == allNeighbors[i].y){
+        mergedAllNeighbors[j].count = mergedAllNeighbors[j].count+1;
+        find = true
+        break;
+      }
+    }
+    if (!find){
+      mergedAllNeighbors.push(allNeighbors[i]);
+    }
+  }
+  var alive  = [];
+
+  for(var j=0;j<mergedAllNeighbors.length;j++){
+    
+    if (mergedAllNeighbors[j].count==3){
+      // console.log(mergedAllNeighbors[j]);
+      alive.push(mergedAllNeighbors[j]);
+    }
+  }
+  return alive;
+}
+function clean() {
+  var canvas = $('#canvas').get(0);
+  if (canvas.getContext) {
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 3000, 3000); 
+  }
+}
+
+
+function draw(point) {
+  var canvas = $('#canvas').get(0);
+  if (canvas.getContext) {
+    var ctx = canvas.getContext('2d');
+    ctx.fillRect(point.x*10,point.y*10,10,10);
+  }
+}
+  </script>
+</html>
